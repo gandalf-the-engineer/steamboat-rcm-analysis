@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Steamboat Ortho - RCM Analysis Dashboard v2</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background-color: #0f172a; color: #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 20px; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        header { margin-bottom: 30px; }
+        h1 { font-size: 28px; color: #f1f5f9; margin-bottom: 8px; }
+        .header-meta { font-size: 13px; color: #94a3b8; }
+        .badge { display: inline-block; background: #3b82f6; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; margin-left: 10px; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 1px solid #334155; padding-bottom: 15px; flex-wrap: wrap; }
+        .tab-btn { padding: 10px 16px; cursor: pointer; border: none; background: none; color: #94a3b8; font-weight: 500; border-bottom: 3px solid transparent; }
+        .tab-btn:hover { color: #cbd5e1; }
+        .tab-btn.active { color: #3b82f6; border-bottom-color: #3b82f6; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .kpi-card { background-color: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 16px; }
+        .kpi-card.danger { border-left: 4px solid #ef4444; }
+        .kpi-card.warning { border-left: 4px solid #f59e0b; }
+        .kpi-card.success { border-left: 4px solid #22c55e; }
+        .kpi-label { font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+        .kpi-value { font-size: 24px; font-weight: bold; color: #f1f5f9; }
+        .kpi-card.danger .kpi-value { color: #ef4444; }
+        .kpi-card.warning .kpi-value { color: #f59e0b; }
+        .kpi-sub { font-size: 11px; color: #64748b; margin-top: 4px; }
+        .chart-section { background-color: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+        .chart-title { font-size: 15px; font-weight: 600; color: #f1f5f9; margin-bottom: 15px; }
+        .chart-container { position: relative; height: 300px; }
+        .data-table { width: 100%; border-collapse: collapse; background-color: #1e293b; border-radius: 8px; overflow: hidden; }
+        .data-table thead { background-color: #0f172a; }
+        .data-table th { padding: 12px; text-align: left; font-size: 11px; color: #94a3b8; font-weight: 600; text-transform: uppercase; }
+        .data-table td { padding: 10px 12px; border-bottom: 1px solid #334155; font-size: 13px; }
+        .data-table tbody tr:hover { background-color: #334155; }
+        .alert-box { background-color: #7f1d1d; border: 1px solid #ef4444; border-radius: 8px; padding: 16px; margin-bottom: 20px; }
+        .alert-box.warning { background-color: #78350f; border-color: #f59e0b; }
+        .alert-box.info { background-color: #1e3a5f; border-color: #3b82f6; }
+        .alert-box h3 { color: #fecaca; margin-bottom: 8px; font-size: 14px; }
+        .alert-box.warning h3 { color: #fde68a; }
+        .alert-box.info h3 { color: #93c5fd; }
+        .alert-box p { color: #fca5a5; font-size: 13px; }
+        .alert-box.warning p { color: #fcd34d; }
+        .alert-box.info p { color: #bfdbfe; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .finding-card { background: linear-gradient(135deg, #1e293b 0%, #334155 100%); border-radius: 8px; padding: 20px; margin-bottom: 15px; }
+        .finding-card h4 { color: #60a5fa; margin-bottom: 10px; font-size: 14px; }
+        .finding-card p { color: #cbd5e1; font-size: 13px; line-height: 1.5; }
+        .finding-card .stat { font-size: 28px; font-weight: bold; color: #f1f5f9; }
+        @media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏥 Steamboat Springs Ortho & Spine<span class="badge">ROUND 2</span></h1>
+            <div class="header-meta">Site ID: 152690 | Deep Dive Analysis | Updated: 2026-03-24 06:34 UTC</div>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('findings')">🔬 Key Findings</button>
+            <button class="tab-btn" onclick="showTab('medicare')">Medicare Analysis</button>
+            <button class="tab-btn" onclick="showTab('providers')">Provider Investigation</button>
+            <button class="tab-btn" onclick="showTab('matrix')">CPT × Payer Matrix</button>
+            <button class="tab-btn" onclick="showTab('actions')">Action Items</button>
+        </div>
+
+        <!-- KEY FINDINGS TAB -->
+        <div id="findings" class="tab-content active">
+            <div class="alert-box info">
+                <h3>🔬 Round 2 Deep Dive Complete</h3>
+                <p>Analysis of Colorado Medicare root cause, low-yield provider investigation, denial patterns, and CPT × Payer yield matrix.</p>
+            </div>
+
+            <div class="grid-2">
+                <div class="finding-card">
+                    <h4>🔴 Finding #1: Medicare Yield is Fee Schedule Issue</h4>
+                    <div class="stat">12.4%</div>
+                    <p>Even APPROVED Medicare claims only yield 14.4%. This is NOT a denial problem — it's a fee schedule alignment issue. The 30% benchmark may be unrealistic.</p>
+                </div>
+                <div class="finding-card">
+                    <h4>🔴 Finding #2: Provider Yield Gap is Process Issue</h4>
+                    <div class="stat">4x</div>
+                    <p>Balise (8.6%) and Degli (7.1%) have the SAME CPT/payer mix as Sielatycki (32.4%). The problem is HOW they bill, not WHAT they bill.</p>
+                </div>
+                <div class="finding-card">
+                    <h4>🟡 Finding #3: Denial Patterns</h4>
+                    <div class="stat">$490K</div>
+                    <p>At stake in denied claims. Top 2 denials worth $68K (Medicare 22514). Auth-related write-offs indicate process gap.</p>
+                </div>
+                <div class="finding-card">
+                    <h4>🟡 Finding #4: Massive Payer Spreads</h4>
+                    <div class="stat">50pp</div>
+                    <p>Same procedure can yield 5% (Medicare) or 55% (UMR). Medicare is worst payer for almost every high-value CPT.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- MEDICARE TAB -->
+        <div id="medicare" class="tab-content">
+            <div class="alert-box warning">
+                <h3>⚠️ Key Insight: Medicare Approved Yield = 14.4%</h3>
+                <p>Even claims that are fully approved and processed only yield 14.4%. Most adjustments are CO45 (contractual). Before chasing "lost" Medicare revenue, verify that billed amounts align with Medicare fee schedules.</p>
+            </div>
+
+            <div class="kpi-grid">
+                <div class="kpi-card danger">
+                    <div class="kpi-label">Medicare Encounters</div>
+                    <div class="kpi-value">2,284</div>
+                </div>
+                <div class="kpi-card danger">
+                    <div class="kpi-label">Medicare Billed</div>
+                    <div class="kpi-value">$3.34M</div>
+                </div>
+                <div class="kpi-card danger">
+                    <div class="kpi-label">Medicare Paid</div>
+                    <div class="kpi-value">$414K</div>
+                </div>
+                <div class="kpi-card danger">
+                    <div class="kpi-label">Medicare Yield</div>
+                    <div class="kpi-value">12.4%</div>
+                    <div class="kpi-sub">Benchmark: 30%</div>
+                </div>
+            </div>
+
+            <div class="chart-section">
+                <div class="chart-title">Medicare vs Other Payers: Same CPT, Different Yield</div>
+                <div class="chart-container"><canvas id="medicareChart"></canvas></div>
+            </div>
+
+            <div class="chart-section">
+                <div class="chart-title">Low Yield Medicare CPTs (<10%)</div>
+                <table class="data-table">
+                    <thead><tr><th>CPT</th><th>Description</th><th>Billed</th><th>Yield</th><th>Likely Issue</th></tr></thead>
+                    <tbody>
+                        <tr><td>27447</td><td>Knee replacement</td><td>$181K</td><td style="color:#ef4444">9.1%</td><td>Auth/Documentation</td></tr>
+                        <tr><td>22856</td><td>Spine surgery</td><td>$82K</td><td style="color:#ef4444">5.4%</td><td>Fee schedule</td></tr>
+                        <tr><td>29827</td><td>Shoulder arthroscopy</td><td>$86K</td><td style="color:#ef4444">9.9%</td><td>Fee schedule</td></tr>
+                        <tr><td>73721</td><td>MRI lower extremity</td><td>$75K</td><td style="color:#ef4444">9.7%</td><td>Fee schedule</td></tr>
+                        <tr><td>72148</td><td>MRI lumbar spine</td><td>$58K</td><td style="color:#ef4444">8.5%</td><td>Fee schedule</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- PROVIDERS TAB -->
+        <div id="providers" class="tab-content">
+            <div class="alert-box">
+                <h3>🔴 Critical Finding: Same Mix, 4x Different Yield</h3>
+                <p>Balise and Degli bill the SAME procedures to the SAME payers as high-yield providers — but get 4x worse results. This indicates a billing/coding process issue, not a case mix issue.</p>
+            </div>
+
+            <div class="chart-section">
+                <div class="chart-title">Provider Yield Comparison</div>
+                <div class="chart-container"><canvas id="providerChart"></canvas></div>
+            </div>
+
+            <div class="chart-section">
+                <div class="chart-title">Provider Comparison Detail</div>
+                <table class="data-table">
+                    <thead><tr><th>Provider</th><th>Yield</th><th>Top CPT</th><th>Top Payer</th><th>Medicare Yield</th><th>CO Blue Yield</th></tr></thead>
+                    <tbody>
+                        <tr><td>John Sielatycki</td><td style="color:#22c55e;font-weight:bold">32.4%</td><td>22856</td><td>CO Medicare</td><td>12.0%</td><td>45.5%</td></tr>
+                        <tr><td>Alexander Meininger</td><td style="color:#22c55e;font-weight:bold">26.0%</td><td>99213</td><td>CO Medicare</td><td>15.2%</td><td>38.7%</td></tr>
+                        <tr><td>Timothy Balise</td><td style="color:#ef4444;font-weight:bold">8.6%</td><td>22856</td><td>CO Medicare</td><td>3.6%</td><td>12.5%</td></tr>
+                        <tr><td>Khristin Degli</td><td style="color:#ef4444;font-weight:bold">7.1%</td><td>27447</td><td>CO Medicare</td><td>6.8%</td><td>5.9%</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- CPT x PAYER MATRIX TAB -->
+        <div id="matrix" class="tab-content">
+            <div class="alert-box warning">
+                <h3>⚠️ Massive Yield Spreads by Payer</h3>
+                <p>The same procedure can have 5% or 55% yield depending on payer. Focus recovery efforts on commercial payers where improvements are actionable.</p>
+            </div>
+
+            <div class="chart-section">
+                <div class="chart-title">CPT × Payer Yield Matrix</div>
+                <table class="data-table">
+                    <thead><tr><th>CPT</th><th>Medicare</th><th>CO Blue</th><th>United</th><th>UMR</th><th>Cigna</th></tr></thead>
+                    <tbody>
+                        <tr><td>99213</td><td style="color:#ef4444">19%</td><td style="color:#22c55e">52%</td><td style="color:#f59e0b">33%</td><td style="color:#22c55e">48%</td><td style="color:#22c55e">49%</td></tr>
+                        <tr><td>22856</td><td style="color:#ef4444">5%</td><td style="color:#f59e0b">23%</td><td style="color:#f59e0b">24%</td><td style="color:#22c55e">38%</td><td style="color:#ef4444">14%</td></tr>
+                        <tr><td>99214</td><td style="color:#ef4444">19%</td><td style="color:#22c55e">53%</td><td style="color:#22c55e">35%</td><td style="color:#22c55e">49%</td><td style="color:#22c55e">55%</td></tr>
+                        <tr><td>27447</td><td style="color:#ef4444">9%</td><td>-</td><td style="color:#ef4444">0%</td><td style="color:#22c55e">40%</td><td style="color:#ef4444">10%</td></tr>
+                        <tr><td>29827</td><td style="color:#ef4444">10%</td><td style="color:#22c55e">36%</td><td style="color:#f59e0b">20%</td><td style="color:#f59e0b">28%</td><td style="color:#f59e0b">24%</td></tr>
+                    </tbody>
+                </table>
+                <p style="color:#94a3b8;font-size:12px;margin-top:10px;">🔴 Red = <20% | 🟡 Amber = 20-30% | 🟢 Green = >30%</p>
+            </div>
+
+            <div class="chart-section">
+                <div class="chart-title">Biggest Yield Spreads</div>
+                <table class="data-table">
+                    <thead><tr><th>CPT</th><th>Best Payer</th><th>Best Yield</th><th>Worst Payer</th><th>Worst Yield</th><th>Spread</th></tr></thead>
+                    <tbody>
+                        <tr><td>J7318</td><td>United</td><td style="color:#22c55e">63%</td><td>Medicare</td><td style="color:#ef4444">12%</td><td style="font-weight:bold">51pp</td></tr>
+                        <tr><td>22633</td><td>UMR</td><td style="color:#22c55e">50%</td><td>CO Blue OOS</td><td style="color:#ef4444">0%</td><td style="font-weight:bold">50pp</td></tr>
+                        <tr><td>64483</td><td>UMR</td><td style="color:#22c55e">58%</td><td>Medicare</td><td style="color:#ef4444">12%</td><td style="font-weight:bold">46pp</td></tr>
+                        <tr><td>22856</td><td>United</td><td style="color:#22c55e">50%</td><td>Medicare</td><td style="color:#ef4444">5%</td><td style="font-weight:bold">45pp</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ACTIONS TAB -->
+        <div id="actions" class="tab-content">
+            <div class="chart-section">
+                <div class="chart-title">🎯 Recommended Actions</div>
+                <table class="data-table">
+                    <thead><tr><th>#</th><th>Action</th><th>Impact</th><th>Owner</th><th>Timeline</th></tr></thead>
+                    <tbody>
+                        <tr><td>1</td><td>Review 2 Medicare 22514 denials ($34K each)</td><td>$68K</td><td>Denials Team</td><td>This week</td></tr>
+                        <tr><td>2</td><td>Audit auth workflow (Shandy manual write-offs)</td><td>Process</td><td>Ops Lead</td><td>This week</td></tr>
+                        <tr><td>3</td><td>Pull Balise/Degli sample claims, compare to Sielatycki</td><td>$1.6M clarity</td><td>Coding Lead</td><td>This week</td></tr>
+                        <tr><td>4</td><td>Medicare fee schedule audit</td><td>$588K clarity</td><td>Finance</td><td>2 weeks</td></tr>
+                        <tr><td>5</td><td>Investigate 0% payer×CPT combinations</td><td>TBD</td><td>Billing</td><td>2 weeks</td></tr>
+                        <tr><td>6</td><td>Documentation training for low-yield providers</td><td>$1.6M at risk</td><td>Coding</td><td>1 month</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="alert-box warning">
+                <h3>⚠️ Important Context</h3>
+                <p>Before targeting the "Medicare yield gap," verify that 30% is a realistic benchmark. If billed amounts are 7-10x Medicare allowed, then 12-15% yield may be CORRECT. Focus recovery efforts on commercial payers where yield improvements are actionable.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        Chart.defaults.color = '#94a3b8';
+        Chart.defaults.borderColor = '#334155';
+
+        // Medicare vs Others chart
+        new Chart(document.getElementById('medicareChart'), {
+            type: 'bar',
+            data: {
+                labels: ['99213', '22856', '99214', '27447', '29827', '73721'],
+                datasets: [
+                    { label: 'Colorado Medicare', data: [19, 5, 19, 9, 10, 10], backgroundColor: '#ef4444' },
+                    { label: 'Other Payers', data: [42, 28, 43, 25, 27, 28], backgroundColor: '#22c55e' }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'top' } },
+                scales: { y: { beginAtZero: true, max: 50, title: { display: true, text: 'Yield %' } } }
+            }
+        });
+
+        // Provider comparison chart
+        new Chart(document.getElementById('providerChart'), {
+            type: 'bar',
+            data: {
+                labels: ['John Sielatycki', 'Alexander Meininger', 'Patrick Johnston', 'Timothy Balise', 'Khristin Degli'],
+                datasets: [{ 
+                    label: 'Yield %', 
+                    data: [32.4, 26.0, 25.9, 8.6, 7.1], 
+                    backgroundColor: ['#22c55e', '#22c55e', '#22c55e', '#ef4444', '#ef4444'] 
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { x: { beginAtZero: true, max: 40, title: { display: true, text: 'Yield %' } } }
+            }
+        });
+    </script>
+</body>
+</html>
