@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Steamboat Ortho - RCM Analysis Dashboard (Final)</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background-color: #0f172a; color: #e2e8f0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 20px; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        header { margin-bottom: 25px; }
+        h1 { font-size: 26px; color: #f1f5f9; margin-bottom: 8px; }
+        .badge { display: inline-block; background: #22c55e; color: white; padding: 3px 10px; border-radius: 4px; font-size: 11px; margin-left: 10px; }
+        .header-meta { font-size: 12px; color: #94a3b8; }
+        .tabs { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid #334155; padding-bottom: 12px; flex-wrap: wrap; }
+        .tab-btn { padding: 8px 14px; cursor: pointer; border: none; background: none; color: #94a3b8; font-weight: 500; border-bottom: 3px solid transparent; font-size: 13px; }
+        .tab-btn:hover { color: #cbd5e1; }
+        .tab-btn.active { color: #3b82f6; border-bottom-color: #3b82f6; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 20px; }
+        .kpi-card { background-color: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 14px; }
+        .kpi-card.success { border-left: 4px solid #22c55e; }
+        .kpi-card.warning { border-left: 4px solid #f59e0b; }
+        .kpi-label { font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+        .kpi-value { font-size: 22px; font-weight: bold; color: #f1f5f9; }
+        .kpi-sub { font-size: 10px; color: #64748b; margin-top: 2px; }
+        .chart-section { background-color: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+        .chart-title { font-size: 14px; font-weight: 600; color: #f1f5f9; margin-bottom: 12px; }
+        .chart-container { position: relative; height: 280px; }
+        .data-table { width: 100%; border-collapse: collapse; background-color: #1e293b; border-radius: 8px; overflow: hidden; font-size: 12px; }
+        .data-table thead { background-color: #0f172a; }
+        .data-table th { padding: 10px; text-align: left; font-size: 10px; color: #94a3b8; font-weight: 600; text-transform: uppercase; }
+        .data-table td { padding: 8px 10px; border-bottom: 1px solid #334155; }
+        .data-table tbody tr:hover { background-color: #334155; }
+        .alert-box { border-radius: 8px; padding: 14px; margin-bottom: 16px; }
+        .alert-box.success { background-color: #14532d; border: 1px solid #22c55e; }
+        .alert-box.warning { background-color: #78350f; border: 1px solid #f59e0b; }
+        .alert-box h3 { margin-bottom: 6px; font-size: 13px; }
+        .alert-box.success h3 { color: #86efac; }
+        .alert-box.warning h3 { color: #fde68a; }
+        .alert-box p { font-size: 12px; }
+        .alert-box.success p { color: #bbf7d0; }
+        .alert-box.warning p { color: #fcd34d; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .finding-card { background: linear-gradient(135deg, #1e293b 0%, #334155 100%); border-radius: 8px; padding: 16px; margin-bottom: 12px; }
+        .finding-card h4 { color: #60a5fa; margin-bottom: 8px; font-size: 13px; }
+        .finding-card p { color: #cbd5e1; font-size: 12px; line-height: 1.4; }
+        .strikethrough { text-decoration: line-through; color: #64748b; }
+        @media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏥 Steamboat Springs Ortho & Spine<span class="badge">FINAL</span></h1>
+            <div class="header-meta">Site ID: 152690 | Corrected Analysis with Modifier Insights | Updated: 2026-03-24 06:48 UTC</div>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('summary')">✅ Summary</button>
+            <button class="tab-btn" onclick="showTab('modifiers')">🔧 Modifier Analysis</button>
+            <button class="tab-btn" onclick="showTab('providers')">👨‍⚕️ Providers (Corrected)</button>
+            <button class="tab-btn" onclick="showTab('actions')">🎯 Action Items</button>
+        </div>
+
+        <!-- SUMMARY TAB -->
+        <div id="summary" class="tab-content active">
+            <div class="alert-box success">
+                <h3>✅ Key Finding: Most "Issues" Are NOT Problems</h3>
+                <p>After modifier analysis, previous concerns about low-yield providers and Medicare gaps are RESOLVED. They reflect surgical roles and specialty mix, not billing errors.</p>
+            </div>
+
+            <div class="kpi-grid">
+                <div class="kpi-card success">
+                    <div class="kpi-label">Total Billed</div>
+                    <div class="kpi-value">$11.86M</div>
+                    <div class="kpi-sub">12,313 encounters</div>
+                </div>
+                <div class="kpi-card success">
+                    <div class="kpi-label">Total Collected</div>
+                    <div class="kpi-value">$3.26M</div>
+                    <div class="kpi-sub">Insurance + PR</div>
+                </div>
+                <div class="kpi-card warning">
+                    <div class="kpi-label">Pipeline</div>
+                    <div class="kpi-value">$1.49M</div>
+                    <div class="kpi-sub">976 claims pending</div>
+                </div>
+                <div class="kpi-card warning">
+                    <div class="kpi-label">Denials</div>
+                    <div class="kpi-value">$490K</div>
+                    <div class="kpi-sub">178 encounters</div>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="finding-card">
+                    <h4>✅ RESOLVED: Low Yield Providers</h4>
+                    <p>Balise (8.6%), Degli (7.1%), Mckown (8.8%) are <b>assistant surgeons</b> — 74-88% of their work uses AS modifier which pays ~16% of primary rate BY DESIGN. Excluding AS: Balise yields 37.5%!</p>
+                </div>
+                <div class="finding-card">
+                    <h4>✅ RESOLVED: Lynn Sloan (22.8%)</h4>
+                    <p>Pain management specialist with 64xxx CPTs (nerve blocks, injections). 48% Medicare, heavy TC modifier. Yield reflects specialty, not billing error.</p>
+                </div>
+                <div class="finding-card">
+                    <h4>✅ RESOLVED: Medicare Gap</h4>
+                    <p>Medicare pays ~15% of billed (fee schedule). Commercial payers pay 3-5x more. Not fixable through billing — need more commercial patients.</p>
+                </div>
+                <div class="finding-card">
+                    <h4>⏳ ACTIONABLE: Pipeline + Denials</h4>
+                    <p>$1.49M in pipeline (61% from March — expected). $490K in denials — some appealable. These are the real opportunities.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODIFIERS TAB -->
+        <div id="modifiers" class="tab-content">
+            <div class="alert-box success">
+                <h3>⚡ Key Discovery: AS Modifier = The Answer</h3>
+                <p>The AS (Assistant Surgeon) modifier explains why some providers have low yields. It's not a billing error — it's their role.</p>
+            </div>
+
+            <div class="chart-section">
+                <div class="chart-title">Modifier Impact on Yield</div>
+                <table class="data-table">
+                    <thead><tr><th>Modifier</th><th>Description</th><th>Billed</th><th>Yield</th><th>Assessment</th></tr></thead>
+                    <tbody>
+                        <tr><td>AS</td><td>Assistant Surgeon</td><td>$2.76M</td><td style="color:#f59e0b">3.8%</td><td>✅ Expected — pays ~16% of primary</td></tr>
+                        <tr><td>None</td><td>No modifier (baseline)</td><td>$2.73M</td><td style="color:#22c55e">32.4%</td><td>✅ Benchmark</td></tr>
+                        <tr><td>RT/LT</td><td>Laterality</td><td>$4.17M</td><td style="color:#22c55e">26.5%</td><td>✅ Normal</td></tr>
+                        <tr><td>50</td><td>Bilateral</td><td>$417K</td><td style="color:#f59e0b">23.9%</td><td>✅ Normal</td></tr>
+                        <tr><td>59</td><td>Distinct Service</td><td>$226K</td><td style="color:#f59e0b">17.7%</td><td>⚠️ Payer-specific bundling</td></tr>
+                        <tr><td>22</td><td>Increased Services</td><td>$76K</td><td style="color:#ef4444">4.4%</td><td>⚠️ Documentation review needed</td></tr>
+                        <tr><td>TC</td><td>Technical Component</td><td>$143K</td><td style="color:#ef4444">11.2%</td><td>✅ Expected — facility portion</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="chart-section">
+                <div class="chart-title">Modifier 59 — Payer-Specific Patterns</div>
+                <table class="data-table">
+                    <thead><tr><th>Payer</th><th>Procedures</th><th>Billed</th><th>Yield</th><th>Pattern</th></tr></thead>
+                    <tbody>
+                        <tr><td>Cigna</td><td>6</td><td>$8K</td><td style="color:#22c55e">34.6%</td><td>Pays well</td></tr>
+                        <tr><td>Wyoming Blue</td><td>5</td><td>$26K</td><td style="color:#22c55e">32.9%</td><td>Pays well</td></tr>
+                        <tr><td>UMR</td><td>6</td><td>$10K</td><td style="color:#22c55e">29.1%</td><td>Pays well</td></tr>
+                        <tr><td>CO Blue Shield</td><td>17</td><td>$36K</td><td style="color:#f59e0b">21.1%</td><td>Average</td></tr>
+                        <tr><td>Medicare</td><td>36</td><td>$72K</td><td style="color:#f59e0b">16.4%</td><td>Fee schedule</td></tr>
+                        <tr><td>Medicaid</td><td>8</td><td>$15K</td><td style="color:#ef4444">3.1%</td><td>Aggressive bundling</td></tr>
+                        <tr><td>AETNA</td><td>4</td><td>$10K</td><td style="color:#ef4444">1.3%</td><td>Aggressive bundling</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- PROVIDERS TAB -->
+        <div id="providers" class="tab-content">
+            <div class="alert-box success">
+                <h3>✅ Provider Analysis CORRECTED</h3>
+                <p>When you exclude AS modifier work, the "low yield" providers are actually performing well. They're assistant surgeons — their role is different.</p>
+            </div>
+
+            <div class="chart-section">
+                <div class="chart-title">Provider Yield: Overall vs Non-AS (Corrected View)</div>
+                <div class="chart-container"><canvas id="providerChart"></canvas></div>
+            </div>
+
+            <div class="chart-section">
+                <div class="chart-title">Provider Performance Detail</div>
+                <table class="data-table">
+                    <thead><tr><th>Provider</th><th>Role</th><th>AS % of Work</th><th>Overall Yield</th><th>Non-AS Yield</th><th>Status</th></tr></thead>
+                    <tbody>
+                        <tr><td>John Sielatycki</td><td>Primary Surgeon</td><td>0%</td><td>32.4%</td><td>32.4%</td><td style="color:#22c55e">✅ Benchmark</td></tr>
+                        <tr><td>Alexander Meininger</td><td>Primary Surgeon</td><td>0.3%</td><td>26.0%</td><td>26.1%</td><td style="color:#22c55e">✅ Good</td></tr>
+                        <tr><td>Timothy Balise</td><td><b>Assistant Surgeon</b></td><td><b>88%</b></td><td>8.6%</td><td style="color:#22c55e"><b>37.5%</b></td><td style="color:#22c55e">✅ Excellent</td></tr>
+                        <tr><td>Khristin Degli</td><td><b>Assistant Surgeon</b></td><td><b>80%</b></td><td>7.1%</td><td style="color:#22c55e"><b>21.6%</b></td><td style="color:#22c55e">✅ Good</td></tr>
+                        <tr><td>Jason Mckown</td><td><b>Assistant Surgeon</b></td><td><b>74%</b></td><td>8.8%</td><td style="color:#22c55e"><b>24.8%</b></td><td style="color:#22c55e">✅ Good</td></tr>
+                        <tr><td>Lynn Sloan</td><td>Pain Management</td><td>0%</td><td>22.8%</td><td>22.8%</td><td style="color:#22c55e">✅ Normal for specialty</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ACTIONS TAB -->
+        <div id="actions" class="tab-content">
+            <div class="chart-section">
+                <div class="chart-title">🎯 Actionable Items</div>
+                <table class="data-table">
+                    <thead><tr><th>#</th><th>Action</th><th>Amount</th><th>Priority</th><th>Notes</th></tr></thead>
+                    <tbody>
+                        <tr><td>1</td><td>Follow up on pipeline claims</td><td>$1.49M</td><td style="color:#22c55e">High</td><td>976 claims — 61% from March (expected)</td></tr>
+                        <tr><td>2</td><td>Work denied claims</td><td>$490K</td><td style="color:#f59e0b">Medium</td><td>178 encounters — some appealable</td></tr>
+                        <tr><td>3</td><td>Review Mod 22 documentation</td><td>$20K</td><td style="color:#94a3b8">Low</td><td>4 claims paid $0 — small sample</td></tr>
+                        <tr><td>4</td><td>AETNA/Medicaid Mod 59 review</td><td>$25K</td><td style="color:#94a3b8">Low</td><td>Payer bundling policy — limited impact</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="chart-section">
+                <div class="chart-title">❌ Items NO LONGER Actionable</div>
+                <table class="data-table">
+                    <thead><tr><th>Previous Concern</th><th>Why Resolved</th></tr></thead>
+                    <tbody>
+                        <tr><td class="strikethrough">Balise/Degli low yield (8.6%/7.1%)</td><td>They're assistant surgeons — yield is CORRECT for role</td></tr>
+                        <tr><td class="strikethrough">Lynn Sloan low yield (22.8%)</td><td>Pain management specialty + Medicare mix — normal</td></tr>
+                        <tr><td class="strikethrough">Medicare yield gap (12% vs 30%)</td><td>Fee schedule difference — need more commercial patients</td></tr>
+                        <tr><td class="strikethrough">Provider performance investigation</td><td>All providers performing appropriately for their roles</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        Chart.defaults.color = '#94a3b8';
+        Chart.defaults.borderColor = '#334155';
+
+        new Chart(document.getElementById('providerChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Sielatycki\n(Primary)', 'Meininger\n(Primary)', 'Balise\n(88% AS)', 'Degli\n(80% AS)', 'Mckown\n(74% AS)', 'Sloan\n(Pain Mgmt)'],
+                datasets: [
+                    { label: 'Overall Yield', data: [32.4, 26.0, 8.6, 7.1, 8.8, 22.8], backgroundColor: '#64748b' },
+                    { label: 'Non-AS Yield', data: [32.4, 26.1, 37.5, 21.6, 24.8, 22.8], backgroundColor: '#22c55e' }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'top' } },
+                scales: { y: { beginAtZero: true, max: 45, title: { display: true, text: 'Yield %' } } }
+            }
+        });
+    </script>
+</body>
+</html>
